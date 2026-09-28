@@ -12,31 +12,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Biodata Mahasiswa',
+      title: 'Pink Profile',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E306E),
-        ),
+        fontFamily: 'Arial',
       ),
-      home: const BiodataPage(),
+      home: const ProfilePage(),
     );
   }
 }
 
-class BiodataPage extends StatefulWidget {
-  const BiodataPage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<BiodataPage> createState() => _BiodataPageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _BiodataPageState extends State<BiodataPage> {
+class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController namaController = TextEditingController();
   final TextEditingController npmController = TextEditingController();
   final TextEditingController jurusanController = TextEditingController();
-
-  final ImagePicker picker = ImagePicker();
 
   XFile? fotoProfile;
 
@@ -45,9 +41,10 @@ class _BiodataPageState extends State<BiodataPage> {
   String jurusan = '';
 
   Future<void> pilihFoto() async {
+    final ImagePicker picker = ImagePicker();
+
     final XFile? image = await picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 85,
     );
 
     if (image != null) {
@@ -62,10 +59,22 @@ class _BiodataPageState extends State<BiodataPage> {
         npmController.text.trim().isEmpty ||
         jurusanController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Silakan lengkapi semua data terlebih dahulu.'),
-          backgroundColor: Colors.redAccent,
+        SnackBar(
+          backgroundColor: const Color(0xFFE91E63),
           behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: const Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.white,
+              ),
+              SizedBox(width: 10),
+              Text('Lengkapi semua data terlebih dahulu'),
+            ],
+          ),
         ),
       );
       return;
@@ -77,38 +86,23 @@ class _BiodataPageState extends State<BiodataPage> {
       jurusan = jurusanController.text.trim();
     });
 
-    FocusScope.of(context).unfocus();
-
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Data berhasil disimpan ✓'),
-        backgroundColor: Colors.green,
+      SnackBar(
+        backgroundColor: const Color(0xFFD81B60),
         behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  Widget tampilkanFoto({
-    double ukuran = 120,
-  }) {
-    if (fotoProfile == null) {
-      return CircleAvatar(
-        radius: ukuran / 2,
-        backgroundColor: const Color(0xFFE5EAF7),
-        child: Icon(
-          Icons.person,
-          size: ukuran * 0.52,
-          color: const Color(0xFF1E306E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-      );
-    }
-
-    return ClipOval(
-      child: Image.network(
-        fotoProfile!.path,
-        width: ukuran,
-        height: ukuran,
-        fit: BoxFit.cover,
+        content: const Row(
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: Colors.white,
+            ),
+            SizedBox(width: 10),
+            Text('Profil berhasil disimpan!'),
+          ],
+        ),
       ),
     );
   }
@@ -121,424 +115,530 @@ class _BiodataPageState extends State<BiodataPage> {
     super.dispose();
   }
 
+  Widget inputField({
+    required String label,
+    required String hint,
+    required IconData icon,
+    required TextEditingController controller,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFE4EF),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: const Color(0xFFE91E63),
+              size: 21,
+            ),
+          ),
+          filled: true,
+          fillColor: const Color(0xFFFFF8FB),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 17,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(
+              color: Color(0xFFF6D5E2),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(
+              color: Color(0xFFE91E63),
+              width: 2,
+            ),
+          ),
+          labelStyle: const TextStyle(
+            color: Color(0xFF777777),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget infoItem(
+    IconData icon,
+    String title,
+    String value,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7FA),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFDCE9),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: const Color(0xFFE91E63),
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Color(0xFF292929),
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FC),
-
+      backgroundColor: const Color(0xFFFFF5F9),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-
               // =========================
-              // HEADER
+              // HEADER PINK
               // =========================
-
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(
-                  25,
+                  24,
                   30,
-                  25,
-                  35,
+                  24,
+                  85,
                 ),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF1E306E),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFE91E63),
+                      Color(0xFFF06292),
+                      Color(0xFFF48FB1),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(35),
-                    bottomRight: Radius.circular(35),
+                    bottomLeft: Radius.circular(45),
+                    bottomRight: Radius.circular(45),
                   ),
                 ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
                   children: [
-                    Text(
-                      'Profil Mahasiswa',
+                    Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.20),
+                            borderRadius: BorderRadius.circular(13),
+                          ),
+                          child: const Icon(
+                            Icons.favorite_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 13,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.20),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'STUDENT',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    const Text(
+                      'My Profile',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 28,
+                        fontSize: 32,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    SizedBox(height: 8),
+                    const SizedBox(height: 7),
 
                     Text(
-                      'Lengkapi data diri kamu di bawah ini',
+                      'Create your personal student profile',
                       style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
+                        color: Colors.white.withOpacity(0.90),
+                        fontSize: 14,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 25),
-
               // =========================
-              // FOTO
+              // FOTO PROFIL
               // =========================
-
-              GestureDetector(
-                onTap: pilihFoto,
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.12),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
+              Transform.translate(
+                offset: const Offset(0, -60),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 25),
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.pink.withOpacity(0.20),
+                        blurRadius: 25,
+                        offset: const Offset(0, 10),
                       ),
-                      child: tampilkanFoto(
-                        ukuran: 125,
-                      ),
-                    ),
-
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E306E),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 3,
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 135,
+                        height: 135,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFFFE4EF),
+                        ),
+                        child: ClipOval(
+                          child: fotoProfile != null
+                              ? Image.network(
+                                  fotoProfile!.path,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(
+                                  Icons.person_rounded,
+                                  size: 75,
+                                  color: Color(0xFFE91E63),
+                                ),
                         ),
                       ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 20,
+
+                      Positioned(
+                        bottom: 3,
+                        right: 3,
+                        child: GestureDetector(
+                          onTap: pilihFoto,
+                          child: Container(
+                            width: 43,
+                            height: 43,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE91E63),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 3,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.pink.withOpacity(0.25),
+                                  blurRadius: 8,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-
-              const SizedBox(height: 10),
-
-              const Text(
-                'Tap untuk memilih foto profile',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 13,
-                ),
-              ),
-
-              const SizedBox(height: 25),
 
               // =========================
               // FORM
               // =========================
-
-              Container(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-                padding: const EdgeInsets.all(22),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    const Text(
-                      'Data Diri',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E306E),
-                      ),
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    const Text(
-                      'Masukkan informasi mahasiswa',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 13,
-                      ),
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    // NAMA
-                    const Text(
-                      'Nama Lengkap',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    TextField(
-                      controller: namaController,
-                      textCapitalization:
-                          TextCapitalization.words,
-                      decoration: InputDecoration(
-                        hintText: 'Masukkan nama lengkap',
-                        prefixIcon: const Icon(
-                          Icons.person_outline,
-                          color: Color(0xFF1E306E),
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF7F8FC),
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    // NPM
-                    const Text(
-                      'NPM',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    TextField(
-                      controller: npmController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: 'Masukkan NPM',
-                        prefixIcon: const Icon(
-                          Icons.badge_outlined,
-                          color: Color(0xFF1E306E),
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF7F8FC),
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    // JURUSAN
-                    const Text(
-                      'Jurusan',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    TextField(
-                      controller: jurusanController,
-                      textCapitalization:
-                          TextCapitalization.words,
-                      decoration: InputDecoration(
-                        hintText:
-                            'Contoh: Manajemen Informatika',
-                        prefixIcon: const Icon(
-                          Icons.school_outlined,
-                          color: Color(0xFF1E306E),
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF7F8FC),
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    // SAVE
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton(
-                        onPressed: simpanData,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color(0xFF1E306E),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(15),
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.save_outlined),
-                            SizedBox(width: 10),
-                            Text(
-                              'Simpan Data',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // =========================
-              // HASIL DATA
-              // =========================
-
-              if (nama.isNotEmpty) ...[
-                const SizedBox(height: 25),
-
-                Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
+              Transform.translate(
+                offset: const Offset(0, -30),
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF1E306E),
-                        Color(0xFF344F9C),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius:
-                        BorderRadius.circular(25),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF1E306E)
-                            .withOpacity(0.25),
-                        blurRadius: 15,
+                        color: Colors.pink.withOpacity(0.08),
+                        blurRadius: 25,
                         offset: const Offset(0, 8),
                       ),
                     ],
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       const Row(
                         children: [
                           Icon(
-                            Icons.verified,
-                            color: Colors.white,
+                            Icons.edit_note_rounded,
+                            color: Color(0xFFE91E63),
+                            size: 27,
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'Profil Tersimpan',
+                            'Data Mahasiswa',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
+                              fontSize: 21,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF292929),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 7),
+
+                      const Text(
+                        'Masukkan informasi diri kamu',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 13,
+                        ),
+                      ),
+
+                      const SizedBox(height: 23),
+
+                      inputField(
+                        label: 'Nama Lengkap',
+                        hint: 'Contoh: Firza Rizkya Nurazizah',
+                        icon: Icons.person_outline_rounded,
+                        controller: namaController,
+                      ),
+
+                      inputField(
+                        label: 'NPM',
+                        hint: 'Masukkan nomor NPM',
+                        icon: Icons.badge_outlined,
+                        controller: npmController,
+                        keyboardType: TextInputType.number,
+                      ),
+
+                      inputField(
+                        label: 'Jurusan',
+                        hint: 'Contoh: Manajemen Informatika',
+                        icon: Icons.school_outlined,
+                        controller: jurusanController,
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      // =========================
+                      // BUTTON SAVE
+                      // =========================
+                      SizedBox(
+                        width: double.infinity,
+                        height: 57,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFE91E63),
+                                Color(0xFFF06292),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(17),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.pink.withOpacity(0.28),
+                                blurRadius: 15,
+                                offset: const Offset(0, 7),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton.icon(
+                            onPressed: simpanData,
+                            icon: const Icon(
+                              Icons.save_rounded,
+                              size: 21,
+                            ),
+                            label: const Text(
+                              'Simpan Profil',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(17),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // =========================
+              // PROFIL TERSIMPAN
+              // =========================
+              if (nama.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(
+                    20,
+                    0,
+                    20,
+                    20,
+                  ),
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFFE4EF),
+                        Color(0xFFFFF7FA),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                      color: const Color(0xFFF8C6D9),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.favorite_rounded,
+                            color: Color(0xFFE91E63),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Profil Saya',
+                            style: TextStyle(
+                              fontSize: 21,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 22),
-
-                      tampilkanFoto(
-                        ukuran: 95,
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      Text(
-                        nama,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 5),
-
-                      Text(
-                        npm,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-
                       const SizedBox(height: 18),
 
-                      Container(
-                        width: double.infinity,
-                        padding:
-                            const EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 13,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              Colors.white.withOpacity(0.12),
-                          borderRadius:
-                              BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.school_outlined,
-                              color: Colors.white,
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            Expanded(
-                              child: Text(
-                                jurusan,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
+                      if (fotoProfile != null)
+                        Center(
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFE91E63),
+                                width: 3,
                               ),
                             ),
-                          ],
+                            child: ClipOval(
+                              child: Image.network(
+                                fotoProfile!.path,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
                         ),
+
+                      if (fotoProfile != null)
+                        const SizedBox(height: 18),
+
+                      infoItem(
+                        Icons.person_rounded,
+                        'Nama',
+                        nama,
+                      ),
+
+                      infoItem(
+                        Icons.badge_rounded,
+                        'NPM',
+                        npm,
+                      ),
+
+                      infoItem(
+                        Icons.school_rounded,
+                        'Jurusan',
+                        jurusan,
                       ),
                     ],
                   ),
                 ),
-              ],
 
-              const SizedBox(height: 35),
+              const SizedBox(height: 10),
+
+              const Text(
+                '♡ Student Profile App ♡',
+                style: TextStyle(
+                  color: Color(0xFFB76E88),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(height: 25),
             ],
           ),
         ),
